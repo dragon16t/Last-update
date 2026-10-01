@@ -116,6 +116,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✓ PASSED - Returns 4 base products (Vitamin E/C/A Brightening Serum, Benzoyl Peroxide Spot Corrector) with proper pagination. All products have prices, images, and variation_count=24. Response format is correct with items array and total count."
+      - working: true
+        agent: "testing"
+        comment: "✓ PASSED (Focused Test) - Verified exactly 4 products returned: Vitamin E Brightening Serum, Vitamin C Brightening Serum, Vitamin A Serum, 2.5% Benzoyl Peroxide Spot Corrector. Catalog health confirmed."
 
   - task: "GET /api/products/vitamin-e-brightening-serum"
     implemented: true
@@ -224,6 +227,21 @@ backend:
       - working: true
         agent: "testing"
         comment: "✓ PASSED - Razorpay LIVE keys loaded successfully. Order creation works correctly. Test order created with ID starting with 'order_', amount 64900 paise (₹649), currency INR. Payment gateway is properly configured and functional."
+      - working: true
+        agent: "testing"
+        comment: "✓ PASSED (Focused Test) - Razorpay order creation with amount ₹199 successful. Order ID: order_Tip58Ods0lqtt5, Amount: 19900 paise (₹199), Currency: INR. LIVE keys working correctly."
+
+  - task: "POST /api/routine/analyze"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/routines.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✓ PASSED - AI skin analysis (Gemini-powered) working correctly. Tested with real face image from Unsplash. Successfully validated human face, returned skin_score: 89, primary_concern: dullness, recommended_concerns: ['brightening-glow']. Gemini API integration is functional."
 
   - task: "GET /api/pincode/{pincode}"
     implemented: true
@@ -255,7 +273,7 @@ frontend:
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 2
+  test_sequence: 3
   run_ui: false
   last_tested: "2025-01-XX"
   test_environment: "https://ecom-preview-16.preview.emergentagent.com"
@@ -271,3 +289,5 @@ agent_communication:
     message: "✅ ALL BACKEND TESTS PASSED (9/9) - All core storefront backend APIs are working correctly. The restored clone is functioning as expected with proper seeded catalog data. No 5xx errors or broken endpoints detected. All endpoints return valid data structures with expected counts and fields."
   - agent: "testing"
     message: "✅ THIRD-PARTY INTEGRATION KEYS VALIDATED (3/3) - All newly-added third-party integration keys are working correctly: (1) Razorpay LIVE keys loaded and order creation successful (order_TioxaeqmHIG4zV created for ₹649), (2) Pincode lookup endpoints functional (682001 → Kerala), (3) Core catalog endpoints remain stable after env changes. No configuration issues detected."
+  - agent: "testing"
+    message: "✅ FOCUSED TEST COMPLETE (3/3 PASSED) - User requested minimal credit usage with 3 specific tests: (1) AI skin analysis (Gemini) - PASSED with skin_score 89, (2) Razorpay order creation (₹199) - PASSED with order_Tip58Ods0lqtt5, (3) Product catalog (4 products) - PASSED. All critical integrations (Gemini AI, Razorpay LIVE) are working correctly."
