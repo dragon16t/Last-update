@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import BackButton from '../components/BackButton';
 import SEOHead, { breadcrumbJsonLd } from '../components/SEOHead';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Sparkles, Sunrise, Moon, Droplet, Shield, Wand2, ArrowRight, Loader2, Check, Camera, X, ShoppingCart, Plus, BadgeCheck, Download } from 'lucide-react';
 import { addToCart } from './Homepage';
@@ -58,6 +58,15 @@ const CONCERNS = [
   'Sensitivity / Redness',
 ];
 const AGE_BANDS = ['18–24', '25–34', '35–44', '45+'];
+const JOURNEY_GOALS = [
+  'Clear Acne', 'Fade Dark Spots', 'Brighten & Glow', 'Reduce Fine Lines',
+  'Even Skin Tone', 'Hydrate & Repair', 'Control Oil', 'Shrink Pores',
+];
+const GENDERS = [
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+  { value: 'other', label: 'Other' },
+];
 
 /* Routine slot mapping — pick one product from these categories per slot.
    Order: Cleanse → Serum → Moisturize → Protect (AM) / Treat (PM). */
@@ -97,9 +106,13 @@ function pickProduct(products, cats, used) {
 }
 
 export default function RoutinePage() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [skinType, setSkinType] = useState('combination');
   const [age, setAge] = useState('25–34');
+  const [journeyGoals, setJourneyGoals] = useState([]);
+  const [gender, setGender] = useState('female');
+  const [starting, setStarting] = useState(false);
   const [selectedConcerns, setSelectedConcerns] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [routine, setRoutine] = useState(null); // { am, pm, skin_score, specialist_notes }
@@ -225,8 +238,45 @@ export default function RoutinePage() {
     return bullets;
   };
 
-  const handleGenerate = async () => {
-    // MANDATORY: at least the front selfie
+  const toggleGoal = (g) => {
+    setJourneyGoals((prev) => {
+      if (prev.includes(g)) return prev.filter((x) => x !== g);
+      if (prev.length >= 2) return [prev[1], g]; // keep max 2 (most recent)
+      return [...prev, g];
+    });
+  };
+
+  const startJourney = async () => {
+    if (!photoFront) {
+      alert('Please upload your FRONT selfie first — your journey is built from it.');
+      return;
+    }
+    if (journeyGoals.length === 0) {
+      alert('Please pick at least one goal for your 30-day journey.');
+      return;
+    }
+    setStarting(true);
+    try {
+      const res = await axios.post(`${API}/api/journey/start`, {
+        photo: photoFront,
+        goals: journeyGoals,
+        gender,
+        age,
+      });
+      const jid = res.data?.id;
+      if (jid) {
+        try { localStorage.setItem('cg_journey_id', jid); } catch {}
+        navigate('/tracker');
+      } else alert('Could not start your journey. Please try again.');
+    } catch (e) {
+      const msg = e?.response?.data?.detail || 'Could not start your journey. Please try again.';
+      alert(msg);
+    } finally {
+      setStarting(false);
+    }
+  };
+
+  const handleGenerate = async () => {    // MANDATORY: at least the front selfie
     if (!photoFront) {
       alert('Please upload the FRONT selfie first — it helps us personalize your routine.');
       return;
@@ -516,6 +566,69 @@ export default function RoutinePage() {
               })}
             </div>
           </div>
+
+          {/* 30-Day Journey — Goals (pick 1-2) */}
+          <div className="mt-6 pt-5 border-t border-white/10">
+            <p className="text-[10px] font-black tracking-[0.25em] uppercase text-amber-300/80 mb-2">
+              30-Day Journey Goal <span className="text-white/30 font-medium normal-case tracking-normal">(pick 1–2)</span>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {JOURNEY_GOALS.map((g) => {
+                const active = journeyGoals.includes(g);
+                return (
+                  <button
+                    key={g}
+                    onClick={() => toggleGoal(g)}
+                    data-testid={`journey-goal-${g.toLowerCase().replace(/\s+/g, '-')}`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold tracking-tight transition-all flex items-center gap-1.5 ${
+                      active
+                        ? 'bg-amber-400 text-amber-950 shadow-lg shadow-amber-500/30'
+                        : 'bg-white/5 text-white/70 ring-1 ring-white/10 hover:bg-white/10'
+                    }`}
+                  >
+                    {active && <Check size={11} />}
+                    {g}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Gender */}
+          <div className="mt-5">
+            <p className="text-[10px] font-black tracking-[0.25em] uppercase text-white/50 mb-2">Gender</p>
+            <div className="flex flex-wrap gap-2">
+              {GENDERS.map((g) => (
+                <button
+                  key={g.value}
+                  onClick={() => setGender(g.value)}
+                  data-testid={`journey-gender-${g.value}`}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                    gender === g.value
+                      ? 'bg-emerald-400 text-emerald-950 shadow-lg shadow-emerald-500/30'
+                      : 'bg-white/5 text-white/70 ring-1 ring-white/10 hover:bg-white/10'
+                  }`}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Start Your Journey — golden CTA → progress page */}
+          <button
+            onClick={startJourney}
+            disabled={starting}
+            data-testid="start-journey-btn"
+            className="mt-6 w-full relative group bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 text-amber-950 font-black py-4 rounded-2xl text-sm tracking-wide shadow-2xl shadow-amber-500/40 hover:shadow-amber-400/60 transition-all hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-70 flex items-center justify-center gap-2 overflow-hidden ring-1 ring-amber-200/60"
+          >
+            {starting ? (
+              <><Loader2 size={18} className="animate-spin" /> Starting your journey…</>
+            ) : (
+              <><Sparkles size={18} /> Start Your 30-Day Journey <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" /></>
+            )}
+          </button>
+          <p className="text-center text-[11px] text-white/40 mt-2">First 30 days free · AI builds a new plan every day from your proof</p>
 
           {/* Generate button */}
           <button

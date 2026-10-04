@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import JourneyStart from '../components/JourneyStart';
+import { JourneyView } from './JourneyPage';
 import {
   Sparkles, Camera, Loader2, Mail, KeyRound, ArrowLeft, TrendingUp, Package,
   LogOut, Upload, Check, Leaf, Ban, Sun, Moon, ChevronRight, Star, CalendarDays,
@@ -469,6 +471,12 @@ function Dashboard({ token, user, onLogout }) {
 export default function TrackerPage() {
   const [token, setToken] = useState(() => { try { return localStorage.getItem(TOKEN_KEY); } catch { return null; } });
   const [user, setUser] = useState(() => { try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch { return null; } });
+  const [journeyId, setJourneyId] = useState(() => { try { return localStorage.getItem('cg_journey_id'); } catch { return null; } });
+
+  const clearJourney = useCallback(() => {
+    try { localStorage.removeItem('cg_journey_id'); } catch {}
+    setJourneyId(null);
+  }, []);
 
   const logout = useCallback(() => {
     try { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); } catch {}
@@ -489,6 +497,6 @@ export default function TrackerPage() {
     </div>
   );
 
-  if (!token) return <div className="min-h-screen bg-stone-50 pb-16"><TopBack /><LoginGate onLogin={(t, u) => { setToken(t); setUser(u); }} /></div>;
-  return <div className="min-h-screen bg-stone-50 pb-16"><TopBack /><Dashboard token={token} user={user} onLogout={logout} /></div>;
+  if (!token) return <div className="min-h-screen bg-stone-50 pb-16"><TopBack /><div className="max-w-md mx-auto px-4 mt-6"><JourneyStart /></div><LoginGate onLogin={(t, u) => { setToken(t); setUser(u); }} /></div>;
+  return <div className="min-h-screen bg-stone-50 pb-16"><TopBack /><div className="max-w-5xl mx-auto px-4 mt-6"><JourneyStart /></div><Dashboard token={token} user={user} onLogout={logout} /></div>;
 }

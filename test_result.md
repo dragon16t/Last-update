@@ -267,15 +267,63 @@ backend:
         agent: "testing"
         comment: "✓ PASSED - State-only pincode lookup working correctly. Test with pincode 682001 returned state: Kerala. Endpoint is functional."
 
+  - task: "POST /api/journey/start"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/journey.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✓ PASSED - Journey creation endpoint working. Returns journey with id, analysis (skin_score, summary), before_photo path, current_day=1, total_days=30, and Day-1 tasks (4 tasks). API structure is correct. NOTE: Gemini API credits are DEPLETED (402 RESOURCE_EXHAUSTED), so all AI features are using FALLBACK data (default skin_score=62, generic concerns, fallback tasks). Face verification is failing OPEN (accepting all images including non-faces) due to Gemini errors."
+
+  - task: "POST /api/journey/{id}/day/{day}/submit"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/journey.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✓ PASSED - Day submission endpoint working. Successfully submitted Day 1, received current_day=2 with Day-2 tasks populated (4 tasks). needs_payment=false as expected for first 30 days. API structure and flow are correct. NOTE: Using fallback AI data due to Gemini credit exhaustion."
+
+  - task: "GET /api/journey/{id}"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/journey.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✓ PASSED - Journey retrieval endpoint working. Returns complete journey data with current_day=2 after Day-1 submission. All required fields present (id, analysis, before_photo, current_day, total_days, days). API structure is correct."
+
+  - task: "Face verification gate (negative test)"
+    implemented: true
+    working: false
+    file: "/app/backend/routes/journey.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "✗ FAILED - Face verification is NOT rejecting non-face images. Tested with landscape image, expected HTTP 422 with 'not your face' error, but got HTTP 200 (accepted). ROOT CAUSE: Gemini API credits are DEPLETED (402 RESOURCE_EXHAUSTED error in logs). The is_human_face() function is designed to fail-OPEN on AI errors (returns True to not block genuine users during transient errors), so it's accepting all images when Gemini fails. This is a CREDIT/BILLING issue, not a code bug."
+
 frontend:
   # No frontend testing as per instructions
 
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 3
+  test_sequence: 4
   run_ui: false
-  last_tested: "2025-01-XX"
+  last_tested: "2026-10-01"
   test_environment: "https://ecom-preview-16.preview.emergentagent.com"
 
 test_plan:
@@ -291,3 +339,6 @@ agent_communication:
     message: "✅ THIRD-PARTY INTEGRATION KEYS VALIDATED (3/3) - All newly-added third-party integration keys are working correctly: (1) Razorpay LIVE keys loaded and order creation successful (order_TioxaeqmHIG4zV created for ₹649), (2) Pincode lookup endpoints functional (682001 → Kerala), (3) Core catalog endpoints remain stable after env changes. No configuration issues detected."
   - agent: "testing"
     message: "✅ FOCUSED TEST COMPLETE (3/3 PASSED) - User requested minimal credit usage with 3 specific tests: (1) AI skin analysis (Gemini) - PASSED with skin_score 89, (2) Razorpay order creation (₹199) - PASSED with order_Tip58Ods0lqtt5, (3) Product catalog (4 products) - PASSED. All critical integrations (Gemini AI, Razorpay LIVE) are working correctly."
+  - agent: "testing"
+    message: "⚠️ 30-DAY JOURNEY API TEST COMPLETE (3/4 PASSED, 1 CRITICAL ISSUE) - Tested 4 journey endpoints with minimal credit usage. API structure and flow are working correctly, but Gemini API credits are DEPLETED (402 RESOURCE_EXHAUSTED). All AI features (face verification, skin analysis, task generation) are using FALLBACK data. Face gate is failing OPEN (accepting non-face images). This is a BILLING/CREDIT issue, not a code bug. The fail-open design is intentional to not block users during transient errors, but credits need to be replenished for full AI functionality."
+

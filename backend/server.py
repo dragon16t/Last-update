@@ -3582,6 +3582,12 @@ from routes import progress_tracker as progress_tracker_routes  # noqa: E402
 progress_tracker_routes.set_db(db)
 app.include_router(progress_tracker_routes.router, prefix="/api")
 
+# 30-Day AI Skin Journey (progressive Gemini tasks + Razorpay renewal)
+from routes import journey as journey_routes  # noqa: E402
+journey_routes.set_db(db)
+journey_routes.set_razorpay(razorpay_client)
+app.include_router(journey_routes.router, prefix="/api")
+
 # AI-generated FAQs per niche (skincare / cosmetics / anti-aging)
 from routes import faqs as faqs_routes  # noqa: E402
 from services.faq_generator import FAQGenerator  # noqa: E402

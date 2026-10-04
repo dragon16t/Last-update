@@ -25,6 +25,7 @@ const CategoriesPage = lazy(() => import('./pages/CategoriesPage'));
 const BrandsListingPage = lazy(() => import('./pages/BrandsListingPage'));
 const BrandDetailPage = lazy(() => import('./pages/BrandDetailPage'));
 const RoutinePage = lazy(() => import('./pages/RoutinePage'));
+const JourneyPage = lazy(() => import('./pages/JourneyPage'));
 const TrackerPage = lazy(() => import('./pages/TrackerPage'));
 const AccountPage = lazy(() => import('./pages/AccountPage'));
 
@@ -353,6 +354,9 @@ function App() {
               } />
               <Route path="/routine" element={
                 <PublicLayout><Suspense fallback={<PageLoader />}><RoutinePage /></Suspense></PublicLayout>
+              } />
+              <Route path="/journey/:jid" element={
+                <PublicLayout><Suspense fallback={<PageLoader />}><JourneyPage /></Suspense></PublicLayout>
               } />
               <Route path="/account" element={
                 <PublicLayout><Suspense fallback={<PageLoader />}><TrackerPage /></Suspense></PublicLayout>

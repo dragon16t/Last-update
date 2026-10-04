@@ -369,13 +369,13 @@ function Homepage() {
       <SaleBadge cfg={niche.sale_badge} niche="skin-care" testIdPrefix="skin-care-sale-badge" />
 
       <NicheHero
-        bgImage={hero.image_desktop || BANNER_IMG}
-        mobileBgImage={hero.image_mobile || BANNER_IMG_MOBILE}
-        eyebrow={hero.eyebrow || null}
+        bgImage={hero.image_desktop || ''}
+        mobileBgImage={hero.image_mobile || ''}
+        eyebrow={null}
         eyebrowDot={accent}
         eyebrowText={accentDark}
-        title={hero.title_line1 ? <>{hero.title_line1}<br/><span className="italic font-light" style={{ color: accentDark }}>{hero.title_line2 || ''}</span></> : null}
-        subtitle={hero.subtitle || null}
+        title={null}
+        subtitle={null}
         cta1={{ label: hero.cta1_label || 'Shop the routine', to: hero.cta1_link || '/categories' }}
         cta2={{ label: hero.cta2_label || 'Shop With AI', to: hero.cta2_link || '/routine' }}
         accent={accent}
@@ -659,14 +659,14 @@ const TRACKER_SKIN = {
   healthy: 'https://images.unsplash.com/photo-1728727267814-792db55ce678?crop=entropy&cs=srgb&fm=jpg&q=85&w=500',
   beforeModel: 'https://images.pexels.com/photos/5588000/pexels-photo-5588000.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=600&w=500',
   afterModel: 'https://images.unsplash.com/photo-1728727267814-792db55ce678?crop=entropy&cs=srgb&fm=jpg&q=85&w=500',
-  aiBeforeAfter: `${process.env.REACT_APP_BACKEND_URL}/api/uploads/assets/skin-analysis-ai.png`,
+  aiBeforeAfter: `${process.env.REACT_APP_BACKEND_URL}/api/uploads/assets/user-before-after.png`,
 };
 
 const TRACKER_PRODUCTS = [
-  { label: 'Cleanser', when: 'AM / PM', img: 'https://images.unsplash.com/photo-1612705166160-97d3b2e8e212?crop=entropy&cs=srgb&fm=jpg&q=80&w=200' },
-  { label: 'Serum', when: 'AM / PM', img: 'https://images.unsplash.com/photo-1654115350830-284e9fb002c7?crop=entropy&cs=srgb&fm=jpg&q=80&w=200' },
-  { label: 'Moisturizer', when: 'AM / PM', img: 'https://images.unsplash.com/photo-1654967102743-53295f5a7142?crop=entropy&cs=srgb&fm=jpg&q=80&w=200' },
-  { label: 'Sunscreen', when: 'AM', img: 'https://images.unsplash.com/photo-1654967441664-2a9ee470db7c?crop=entropy&cs=srgb&fm=jpg&q=80&w=200' },
+  { label: 'Cleanser', when: 'AM / PM', img: `${process.env.REACT_APP_BACKEND_URL}/api/uploads/assets/rec-cleanser.jpg` },
+  { label: 'Serum', when: 'AM / PM', img: `${process.env.REACT_APP_BACKEND_URL}/api/uploads/assets/rec-serum.jpg` },
+  { label: 'Moisturizer', when: 'AM / PM', img: `${process.env.REACT_APP_BACKEND_URL}/api/uploads/assets/rec-moisturizer.jpg` },
+  { label: 'Sunscreen', when: 'AM', img: `${process.env.REACT_APP_BACKEND_URL}/api/uploads/assets/rec-sunscreen.jpg` },
 ];
 
 function MetricRow({ icon: Icon, label, value, up }) {
